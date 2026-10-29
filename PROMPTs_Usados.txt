@@ -1,0 +1,100 @@
+PROMPT(Generado usando Cowboy prompt)
+Quiero que actúes como arquitecto de software full-stack senior y construyas desde cero un proyecto llamado **Omnisense**, basado en el dossier PDF adjunto (`omnisense-dossier.pdf`), que contiene toda la información del proyecto y se usa como fuente de contenido. El objetivo es entregar, en una sola iteración, una aplicación web funcional que presente el proyecto y un CRUD completo para gestionar sus propios registros. Frontend, backend, base de datos y CRUD deben crearse ahora, no en fases posteriores.
+
+La aplicación debe levantarse completamente con un único comando de Docker Compose. El usuario no debe descargar archivos adicionales ni instalar dependencias en su máquina más allá de Docker: frontend, backend, base de datos, dependencias y migraciones iniciales deben instalarse y lanzarse con los contenedores. Si conviene, puede apoyarse en un script de arranque dentro del contenedor.
+
+Stack obligatorio:
+
+- **Base de datos:** MySQL/MariaDB.
+- **Backend:** Node.js con Express.
+- **Frontend:** React con Next.js.
+
+Alcance:
+
+- **Frontend (React/Next.js):** una interfaz web que muestre el proyecto Omnisense de forma clara y atractiva, tomando como base el contenido del dossier: qué es, qué problema resuelve, sus componentes y su propuesta de valor. Incluye las vistas del CRUD (listar, crear, ver, editar y eliminar). El README debe explicar la elección de Next.js.
+- **Backend (Node.js/Express):** una API que sirva los datos del proyecto al frontend y exponga los endpoints del CRUD, con validación y manejo de errores. El README debe justificar brevemente la elección de Express.
+- **Base de datos (MySQL/MariaDB):** un esquema inicial con entidades que representen los componentes del proyecto según el dossier (por ejemplo máquinas, fallos y componentes), con campos sencillos y no excesivamente extensos, pensados para que el CRUD sea claro. Incluye migraciones o script de inicialización y datos de ejemplo extraídos del dossier, de forma que la interfaz tenga contenido real desde el primer arranque.
+- **Contenedores:** un `docker-compose.yml` que levante frontend, backend y base de datos con un único comando, con variables de entorno en un archivo `.env.example`. El arranque debe ser completo solo con Docker, sin pasos manuales de instalación en el host.
+- **CRUD básico:** operaciones para listar, crear, ver, editar y eliminar registros. No se requiere usuario ni login: cualquier persona puede ejecutar las acciones del CRUD.
+- **README.md:** debe explicar qué hace el proyecto, las tecnologías utilizadas, los pasos exactos para desplegarlo con Docker Compose y las herramientas de IA empleadas en su desarrollo.
+
+Antes de escribir código, define brevemente la estructura de carpetas y las decisiones técnicas principales, y luego entrega todos los archivos completos y listos para ejecutar. Mantén el alcance acotado: no añadas funcionalidades, servicios ni capas arquitectónicas que no se hayan pedido, y cuando un detalle no esté especificado, elige la opción más simple y estándar.
+
+Escribe el README y los comentarios del código en español.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+RESPUESTA DE CLAUDE
+Pensó durante 1m 39s
+
+Decidiendo cómo entregar el proyecto completo.
+
+Guardando el contexto del proyecto en memoria.
+
+Creando la estructura del proyecto y sus archivos.
+
+Diseñando las pantallas de cada recurso.
+
+Definiendo la validación y las rutas genéricas del backend.
+
+Ajustando la conexión a la base de datos y el arranque de los contenedores.
+
+Resolviendo cómo conectar el frontend con el backend.
+
+Repasando la pantalla de listado y sus formularios.
+
+Revisando las reglas de validación de los campos.
+
+Diseñando las rutas genéricas y el manejo de errores.
+
+Empaquetando el proyecto y preparando los archivos finales.
+
+Revisando los archivos de Docker y la configuración de los servicios.
+
+Revisando el formulario genérico y las llamadas al backend.
+
+Diseñando el diseño visual y las páginas de inicio.
+
+Maquetando las páginas de detalle y edición.
+
+Preparando los datos de ejemplo y la documentación.
+
+Redactando el README y el contexto final del proyecto.
+
+Maquetando el diseño visual de la interfaz.
+
+Añadiendo el contenedor con desplazamiento para tablas en móvil.
+Estructura y decisiones técnicas
+
+omnisense/
+├── docker-compose.yml      # db + backend + frontend, un solo comando
+├── .env.example            # variables (opcional: hay valores por defecto)
+├── README.md
+├── db/init.sql             # esquema + datos de ejemplo (se ejecuta en el primer arranque)
+├── backend/                # Express: API REST genérica con validación
+│   ├── Dockerfile · package.json
+│   └── src/index.js
+└── frontend/               # Next.js (App Router)
+    ├── Dockerfile · package.json · next.config.js
+    └── app/ layout.js · page.js · lib.js · componentes.js · globals.css
+        └── [recurso]/ page.js · nuevo/page.js · [id]/page.js · [id]/editar/page.js
+
+    Tres entidades (machines, faults, components). Cada una se define una sola vez como configuración, y el CRUD del backend y las vistas del frontend se generan a partir de ella, para no repetir código.
+    Next.js hace /api/* proxy hacia Express (rewrites), así el navegador usa un único origen y no hace falta CORS.
+    MariaDB inicializa el esquema con db/init.sql. El backend espera a que la base de datos esté lista (healthcheck + depends_on).
+
+Ejecutó 5 comandos, añadido a la memoria y 2 herramientas más
+Leer guía de diseño antes de crear el frontendSKILL.md
+Ya están el backend y el frontend; ahora escribo el README y empaqueto el proyecto en un zip.
+Presented file
+
+Te dejo el proyecto completo en omnisense.zip. Descomprímelo, entra en la carpeta omnisense y ejecuta docker compose up --build. Después abre http://localhost:3000.
+
+No he podido probar el arranque con Docker en este entorno, porque no tiene red. Solo he comprobado que el backend compila sin errores de sintaxis.
+
+    Puertos y contraseñas: el .env es opcional. Sin él se usan los valores por defecto, con la web en el puerto 3000 y la API en el 4000.
+    Datos de ejemplo: los 12 componentes salen del dossier. Las máquinas y los fallos son ejemplos ilustrativos inspirados en él, porque el dossier no incluye casos concretos.
+    Valores en español: las opciones de gravedad, estado y categoría se guardan en español con acentos (por ejemplo “crítica” o “vibración”).
+    Cascada al borrar: al eliminar una máquina se eliminan también sus fallos.
+
+Omnisense
+ZIP
+

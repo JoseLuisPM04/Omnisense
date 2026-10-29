@@ -1,0 +1,50 @@
+# Omnisense: base de datos + API + web. Arranque: docker compose up --build
+# Todas las variables tienen valor por defecto; .env es opcional.
+services:
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-root_dev}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-omnisense}
+      MARIADB_USER: ${MARIADB_USER:-omnisense}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-omnisense_dev}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Se ejecuta solo la primera vez (volumen vacío): crea tablas y datos de ejemplo
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      # Consulta por TCP una tabla creada por init.sql: solo pasa cuando la inicialización terminó
+      test: ["CMD-SHELL", "mariadb -h127.0.0.1 -u$$MARIADB_USER -p$$MARIADB_PASSWORD $$MARIADB_DATABASE -e 'SELECT 1 FROM components LIMIT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_USER: ${MARIADB_USER:-omnisense}
+      DB_PASSWORD: ${MARIADB_PASSWORD:-omnisense_dev}
+      DB_NAME: ${MARIADB_DATABASE:-omnisense}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-4000}:4000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    environment:
+      API_URL: http://backend:4000
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+
+volumes:
+  db_data:
